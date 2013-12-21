@@ -129,8 +129,12 @@ class EmailRegistrationForm(forms.Form):
             if data['password1'] != data['password2']:
                 raise forms.ValidationError(
                     _("The two password fields didn't match."))
-
-        self.cleaned_data['username'] = generate_username(data['email'])
+        try:
+            # Set username only if neccesary
+            USER._meta.get_field('username')
+            self.cleaned_data['username'] = generate_username(data['email'])
+        except USER.FieldDoesNotExist:
+            pass
         return self.cleaned_data
 
     class Media:
