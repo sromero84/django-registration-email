@@ -5,7 +5,7 @@ import os
 from django import forms
 from django.conf import settings
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 # lands in trunk, this will no longer be necessary.
 attrs_dict = {'class': 'required'}
 
+USER = get_user_model()
 
 def get_md5_hexdigest(email):
     """
@@ -35,20 +36,20 @@ def generate_username(email):
 
     """
     try:
-        User.objects.get(email=email)
+        USER.objects.get(email=email)
         raise Exception('Cannot generate new username. A user with this email'
                         'already exists.')
-    except User.DoesNotExist:
+    except USER.DoesNotExist:
         pass
 
     username = get_md5_hexdigest(email)
     found_unique_username = False
     while not found_unique_username:
         try:
-            User.objects.get(username=username)
+            USER.objects.get(username=username)
             email = '{0}a'.format(email.lower())
             username = get_md5_hexdigest(email)
-        except User.DoesNotExist:
+        except USER.DoesNotExist:
             found_unique_username = True
             return username
 
@@ -103,8 +104,8 @@ class EmailRegistrationForm(forms.Form):
         """
         email = self.cleaned_data['email'].strip()
         try:
-            User.objects.get(email__iexact=email)
-        except User.DoesNotExist:
+            USER.objects.get(email__iexact=email)
+        except USER.DoesNotExist:
             return email.lower()
         raise forms.ValidationError(
             _('A user with that email already exists.'))

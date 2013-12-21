@@ -5,8 +5,10 @@ Inspired by http://djangosnippets.org/snippets/2463/
 
 """
 from django.contrib.auth.backends import ModelBackend
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.validators import validate_email
+
+USER = get_user_model()
 
 
 class EmailBackend(ModelBackend):
@@ -28,21 +30,21 @@ class EmailBackend(ModelBackend):
             username_is_email = True
         if username_is_email:
             try:
-                user = User.objects.get(email=username)
-            except User.DoesNotExist:
+                user = USER.objects.get(email=username)
+            except USER.DoesNotExist:
                 return None
         else:
             #We have a non-email address username we should try username
             try:
-                user = User.objects.get(username=username)
-            except User.DoesNotExist:
+                user = USER.objects.get(username=username)
+            except USER.DoesNotExist:
                 return None
-        if user.check_password(password):
+        if USER.check_password(password):
             return user
         return None
 
     def get_user(self, user_id):
         try:
-            return User.objects.get(pk=user_id)
-        except User.DoesNotExist:
+            return USER.objects.get(pk=user_id)
+        except USER.DoesNotExist:
             return None
