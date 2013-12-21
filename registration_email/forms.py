@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
+from django.db.models.fields import FieldDoesNotExist
 
 
 # I put this on all required fields, because it's easier to pick up
@@ -133,7 +134,7 @@ class EmailRegistrationForm(forms.Form):
             # Set username only if neccesary
             USER._meta.get_field('username')
             self.cleaned_data['username'] = generate_username(data['email'])
-        except USER.FieldDoesNotExist:
+        except FieldDoesNotExist:
             pass
         return self.cleaned_data
 
